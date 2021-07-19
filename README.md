@@ -18,10 +18,18 @@ This is a python script and a few other files that can simulate neuron activity 
 - JellyfishMatrix(startingval) - Creates an adjacency matrix based on the structure of a jellyfish
 - randomUV(self, t) - Sets random starting values for u and v for all neurons
 
+# Files Included 
+- data.csv - Contains the simple chain adjacency matrix
+- data2.csv - Contains the adjacency matrix in which one neuron is connected to all others
+- neuron.py - Contains all methods for graphing, visualization, and data analysis
+- regular.txt - Real life data of a rat without seizures
+- seizure.txt - Real life data of a rat with seizures
+
 # Future Developments
 - Include parameters to measure synchronization easily (detection for seizures)
 - Include a method to visualize the adjacency matrix (spyplot)
 - Test further network topologies to see if we can better results that is similar to real data
 - Use the simulator to attempt to reverse engineer and be able to predict seizures
 - Increase the display to make it easier to analyze graphs and networks
+- Create a downloadable package so it is easier for future researchers to use the software
 
