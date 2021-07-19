@@ -26,6 +26,11 @@ This is a python script and a few other files that can simulate neuron activity 
 - seizure.txt - Real life data of a rat with seizures
 - samplegraph.py - Graphs the real life data to find similarities
 
+# Guide to Run
+- Start by downloading all of the files above
+- To run the file use the following command: streamlit run neuron.py in the terminal
+- Once the interface pops up, the sliders can be used to change the various parameters
+
 # Future Developments
 - Include parameters to measure synchronization easily (detection for seizures)
 - Include a method to visualize the adjacency matrix (spyplot)
