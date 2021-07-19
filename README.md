@@ -7,6 +7,7 @@ This is a python script and a few other files that can simulate neuron activity 
 - Numpy - Numerical calculation
 - Scipy - Needed as a prerequisite for other packages
 - Pandas - Needed to read files for adjacency matrix
+- NetworkX - Used to visualize the network
 
 # Methods
 - csvMatrix(inputFile, start) - Creates an adjacency matrix based on a CSV file (Ex: data.csv)
