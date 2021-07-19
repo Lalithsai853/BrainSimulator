@@ -24,6 +24,7 @@ This is a python script and a few other files that can simulate neuron activity 
 - neuron.py - Contains all methods for graphing, visualization, and data analysis
 - regular.txt - Real life data of a rat without seizures
 - seizure.txt - Real life data of a rat with seizures
+- samplegraph.py - Graphs the real life data to find similarities
 
 # Future Developments
 - Include parameters to measure synchronization easily (detection for seizures)
