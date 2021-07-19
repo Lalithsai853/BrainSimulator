@@ -1,5 +1,5 @@
 # BrainSimulator
-This is a python script and a few other files that can simulate neuron activity based on various adjacency matrices to see if we can simulate seizures. There are still a few features that need to be updated, such as corrletation parameters to check for synchronization among neurons. If you have any questions, you can open up an issue and I'll make sure to look at it.
+This is a python script and a few other files that can simulate neuron activity based on various adjacency matrices to see if we can simulate seizures. There are still a few features that need to be updated, such as correlation parameters to check for synchronization among neurons. If you have any questions, you can open up an issue and I'll make sure to look at it.
 
 # External Packages
 - Matplotlib - For graphing the neuron activity
@@ -22,19 +22,19 @@ This is a python script and a few other files that can simulate neuron activity 
 - data.csv - Contains the simple chain adjacency matrix
 - data2.csv - Contains the adjacency matrix in which one neuron is connected to all others
 - neuron.py - Contains all methods for graphing, visualization, and data analysis
-- regular.txt - Real life data of a rat without seizures
-- seizure.txt - Real life data of a rat with seizures
-- samplegraph.py - Graphs the real life data to find similarities
+- regular.txt - Real-life data of a rat without seizures
+- seizure.txt - Real-life data of a rat with seizures
+- samplegraph.py - Graphs the real-life data to find similarities
 
 # Guide to Run
 - Start by downloading all of the files above
-- To run the file use the following command: streamlit run neuron.py in the terminal
+- To run the file, please use the following command: streamlit run neuron.py in the terminal
 - Once the interface pops up, the sliders can be used to change the various parameters
 
 # Future Developments
 - Include parameters to measure synchronization easily (detection for seizures)
 - Include a method to visualize the adjacency matrix (spyplot)
-- Test further network topologies to see if we can better results that is similar to real data
+- Test further network topologies to see if we can better results that are similar to real data
 - Use the simulator to attempt to reverse engineer and be able to predict seizures
 - Increase the display to make it easier to analyze graphs and networks
 - Create a downloadable package so it is easier for future researchers to use the software
