@@ -1,5 +1,5 @@
 # BrainSimulator
-This is a python script and a few other files that can simulate neuron activity based on various adjacency matrices to see if we can simulate seizures. There are still a few features that need to be updated, such as correlation parameters to check for synchronization among neurons. If you have any questions, you can open up an issue and I'll make sure to look at it.
+This is a python script and a few other files that can simulate neuron activity based on various adjacency matrices to see if we can simulate seizures. Several features have been updated which can be used to check for synchronization among neurons. If you have any questions, you can open up an issue and I'll make sure to look at it.
 
 # External Packages
 - Matplotlib - For graphing the neuron activity
