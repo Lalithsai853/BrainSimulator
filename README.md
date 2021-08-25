@@ -33,10 +33,10 @@ This is a python script and a few other files that can simulate neuron activity 
 - Once the interface pops up, the sliders can be used to change the various parameters
 
 # Future Developments
-- Include parameters to measure synchronization easily (detection for seizures)
-- Include a method to visualize the adjacency matrix (spyplot)
-- Test further network topologies to see if we can better results that are similar to real data
+- Include parameters to measure synchronization easily (detection for seizures) (DONE)
+- Include a method to visualize the adjacency matrix (spyplot) (DONE)
+- Test further network topologies to see if we can better results that are similar to real data (DONE)
 - Use the simulator to attempt to reverse engineer and be able to predict seizures
-- Increase the display to make it easier to analyze graphs and networks
+- Increase the display to make it easier to analyze graphs and networks (DONE)
 - Create a downloadable package so it is easier for future researchers to use the software
 
