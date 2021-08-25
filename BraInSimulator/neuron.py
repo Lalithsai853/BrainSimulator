@@ -5,12 +5,16 @@ import numpy as np
 import scipy as scpy
 import scipy.integrate as spin
 from matplotlib import pyplot as plt
+import collections
+from scipy import stats
 import random
 import matplotlib.patches as mpatches
 import pandas
 import math
 import streamlit as st
 import networkx as nx
+import seaborn as sns
+from kuramoto import Kuramoto
 class Neuron:
     # Creates the neuron object
     def __init__(self, tmax, a, u0 = None, v0 = None, I_ampl= None, b= None, tau= None, matrixA= None, matrixB= None, timescale= None, coupling= None):
@@ -74,24 +78,36 @@ class Neuron:
     def calculateUVmatrix(self, u1, v1, t, range1):
         uterm = 0
         vterm = 0
-        for i in range(0,len(t)-2):
+        for i in range(0,len(t)-1):
             for n in range(0, range1):
                 dudt = u1[n][i] - np.power(u1[n][i], 3)/3 - v1[n][i]
                 dvdt = u1[n][i] + self.a
-
+                #print("U and V derivatives after power")
+                #print(str(dudt) + "  " + str(dvdt))
+                #assert(dudt <= 50 and dudt >= -50)
                 for j in range(0, range1):
                     uterm = uterm + self.matrixA[n][j] * ((self.matrixB[0][0] * (u1[j][i] - u1[n][i])) + (self.matrixB[0][1] * (v1[j][i] - v1[n][i])))
-
                     vterm = vterm + self.matrixA[n][j] * ((self.matrixB[1][0] * (u1[j][i] - u1[n][i])) + (self.matrixB[1][1] * (v1[j][i] - v1[n][i])))
+                    #print("A values and u/B values")
+                    #print(str(self.matrixA[n][j]) + "  " + str(((self.matrixB[0][0] * (u1[j][i] - u1[n][i])) + (self.matrixB[0][1] * (v1[j][i] - v1[n][i])))))
+
                 uterm = uterm * self.coupling
                 vterm = vterm * self.coupling
+
+                #print("U and V Terms after Coupling")
+                #print(str(uterm) + "  " + str(vterm))
 
                 dudt = (dudt + uterm)/(self.timescale)
                 dvdt = (dvdt + vterm)
 
+                #print("Derivatives after Timescale and adding u and v terms")
+                #print(str(dudt) + "  " + str(dvdt))
+
                 u1[n][i+1] = u1[n][i] + dudt * (t[i+1] - t[i])
                 v1[n][i+1] = v1[n][i] + dvdt * (t[i+1] - t[i])
 
+                #print("U and V values")
+                #print(str(u1[n][i+1]) + "  " + str(v1[n][i+1]))
                 uterm = 0
                 vterm = 0
 
@@ -127,71 +143,89 @@ class Neuron:
         return resmatrix
 
 
-    @staticmethod
-    # parameters: starting value
-    # returns: a 90x90 matrix that is shaped like a Jellyfish
-    def JellyfishMatrix(startingval):
-        resmatrix = np.zeros((90, 90))
-        for i in range(0, 89):
-            for j in range(0, 89):
-                resmatrix[i][j] = startingval
-        for i in range(35, 54):
-            resmatrix[i][i+1] = 1
-            resmatrix[i+1][i] = 1
-        resmatrix[35][54] = 1
-        resmatrix[54][35] = 1
+    # Don't have empirical data currently
+    def empiricalNetwork():
+        pass
 
-        for i in range(20, 34):
-            resmatrix[i][i+1] = 1
-            resmatrix[i+1][i] = 1
-        for i in range(55, 69):
-            resmatrix[i][i+1] = 1
-            resmatrix[i+1][i] = 1
-        resmatrix[20][69] = 1
-        resmatrix[69][20] = 1
-        resmatrix[34][55] = 1
-        resmatrix[55][34] = 1
-        for i in range(0, 4):
-            resmatrix[i][i+1] = 1
-            resmatrix[i+1][i] = 1
-        for i in range(5, 9):
-            resmatrix[i][i+1] = 1
-            resmatrix[i+1][i] = 1
-        for i in range(10, 14):
-            resmatrix[i][i+1] = 1
-            resmatrix[i+1][i] = 1
-        for i in range(14, 19):
-            resmatrix[i][i+1] = 1
-            resmatrix[i+1][i] = 1
-        for i in range(70, 74):
-            resmatrix[i][i+1] = 1
-            resmatrix[i+1][i] = 1
-        for i in range(75, 79):
-            resmatrix[i][i+1] = 1
-            resmatrix[i+1][i] = 1
-        for i in range(80, 84):
-            resmatrix[i][i+1] = 1
-            resmatrix[i+1][i] = 1
-        for i in range(85, 89):
-            resmatrix[i][i+1] = 1
-            resmatrix[i+1][i] = 1
-        resmatrix[0][23] = 1
-        resmatrix[23][0] = 1
-        resmatrix[5][26] = 1
-        resmatrix[26][5] = 1
-        resmatrix[10][29] = 1
-        resmatrix[29][10] = 1
-        resmatrix[14][32] = 1
-        resmatrix[32][14] = 1
-        resmatrix[70][58] = 1
-        resmatrix[58][70] = 1
-        resmatrix[75][61] = 1
-        resmatrix[61][75] = 1
-        resmatrix[80][64] = 1
-        resmatrix[64][80] = 1
-        resmatrix[85][67] = 1
-        resmatrix[67][85] = 1
+    # Generates completely random matrix with random weights
+    @staticmethod
+    def randSurrogate():
+        resmatrix = np.zeros((90, 90))
+        lst = [0.00001, 0.0001, 0.0001, 0.01, 0.01, 1]
+        for i in range(0, 90):
+            for j in range(0, 90):
+                if (i == j):
+                    resmatrix[i][j] = 0
+                else:
+                    temp = random.randrange(5)
+                    temp = lst[temp]
+                    resmatrix[i][j] = temp
         return resmatrix
+
+    # Creates fractal connectivity topology with weights only 1s and 0s
+    @staticmethod
+    def fractalConn(a):
+        b = str(a)
+        resmatrix = np.zeros((81, 81))
+        resarray = np.zeros(81)
+        shifted_list = np.zeros(81)
+        b = "101000101000000000101000101000000000000000000000000000101000101000000000101000101"
+        for i in range(0, 81):
+            resmatrix[0][i] = int(b[i])
+        for i in range(0, 80):
+            resarray = collections.deque(resmatrix[i])
+            resarray.rotate(1)
+            shifted_list = list(resarray)
+            resmatrix[i+1] = shifted_list
+        return resmatrix
+
+    # Creates fractal connectivity topology with real weights
+    @staticmethod
+    def realfractalConn():
+        lst = [0.00001, 0.0001, 0.0001, 0.01, 0.01, 1]
+        b = str(a)
+        resmatrix = np.zeros((81, 81))
+        resarray = np.zeros(81)
+        shifted_list = np.zeros(81)
+        b = "101000101000000000101000101000000000000000000000000000101000101000000000101000101"
+        for i in range(0, 81):
+            resmatrix[0][i] = int(b[i])
+        for i in range(0, 80):
+            resarray = collections.deque(A[i])
+            resarray.rotate(1)
+            shifted_list = list(resarray)
+            resmatrix[i+1] = shifted_list
+
+        for i in range(0, 81):
+            for j in range(0, 81):
+                if (resmatrix[i][j] == 1):
+                    temp = random.randrange(5)
+                    temp = lst[temp]
+                    resmatrix[i][j] = temp
+                # add randomized component
+        return resmatrix
+
+    # Uses Watts-Strogatz Algorithm
+    @staticmethod
+    def smallworld(p):
+        graph = nx.watts_strogatz_graph(90, 3, p)
+        A1 = nx.to_numpy_array(graph)
+        return A1
+
+    # Generates star topology
+    @staticmethod
+    def generateStar():
+        graph = nx.star_graph(90)
+        A1 = nx.to_numpy_array(graph)
+        return A1
+
+    # Generates random tree topology
+    @staticmethod
+    def randomTree():
+        graph = nx.random_tree(90)
+        A1 = nx.to_numpy_array(graph)
+        return A1
+
 
     # parameters: time array
     # returns: u and v arrays with random starting values
@@ -213,13 +247,52 @@ class Neuron:
                 v1[i][0] = random.uniform(-1 , 0)
         return u1, v1
 
+    # parameters: U array, with values for u
+    # returns: correlation matrix
+    def corrMatrix(self, u, axs):
+        corr_matrix = np.corrcoef(u)
+        print(corr_matrix)
+
+    # parameters: u array
+    # returns: correlation parameter
+    def pCorrelation(self, u, n1, n2):
+        r, p = stats.pearsonr(u[n1], u[n2])
+        print("Correlation Coefficient", r)
+
+    # Calculates global kuramoto paramater R given u and v arrays
+    def graphR(self, maxt, u, v, t, ax):
+        r1 = np.zeros(len(t))
+        rterm = 0
+        T = 2.56
+
+        for i in range(0, len(t)):
+            for j in range(0, 90):
+                rterm += (((math.e**((2 * math.pi)/T * (((math.atan(v[j][i]/u[j][i])))*1j).real))))
+                #print(((2 * math.pi)/T * (((math.atan(v[j][i]/u[j][i])))*1j)))
+                #print("Divider")
+                #print((math.e**((2 * math.pi)/T * (((math.atan(v[j][i]/u[j][i])))*1j))).real)
+            print(rterm)
+            rterm = rterm/90
+            r1[i] = rterm
+            rterm = 0
+
+        ax[1].plot(t, r1, 'b.-')
+        upperBoundary = 1
+        lowerBoundary = 0
+        ax[1].axis([0,maxt, lowerBoundary, upperBoundary])
+        ax[1].grid(True)
+
+
+
+
 def main():
     # Various filenames change the structure of the adjacency matrix
     # data.csv - Chain
     # data2.csv - One neuron connected to all other neurons
     # KroneckerMatrix and Jellyfish Methods also change the structure of the adjacency matrix
+    # NOTE FOR TESTING: Please plot either the heatmap or the r value, unfortunately streamlit is having
+    # trouble displaying 3 plots at once.
     fileName = 'data.csv'
-    matrixA = Neuron.csvmatrixA(fileName, 0.001)
     matrixB = np.ones((2,2))
     matrixB = Neuron.generatematrixB((math.pi/2)- 1) #Psi Paramater according to Chaos Paper
 
@@ -234,10 +307,13 @@ def main():
     a = st.slider("A value", 0.0, 1.0, 0.5, 0.01)
     timescale = st.slider("Timescale Value", 0.0, 1.0, 0.05, 0.01)
     coupling = st.slider("Coupling", 0.0, 1.0, 0.5, 0.01)
-    tmax = st.slider("Maximum Time", 5, 100, 10, 5)
-    steps = st.slider("Number of steps", 100, 1000, 400, 20)
+    tmax = st.slider("Maximum Time", 5, 1000, 10, 5)
+    steps = st.slider("Number of steps", 100, 20000, 400, 20)
     num = st.slider("Neuron Number", 0, 89, 0, 1)
+    p = st.slider("Rewiring probability", 0.0000, 1.0000, 0.5000, 0.0001)
     t1 = np.linspace(0, tmax, steps)
+
+    matrixA = Neuron.smallworld(p)
 
     # Creates the neuron object
     new_neuron = Neuron(tmax, a, u01, v01, I_ampl1, b1, tau1, matrixA, matrixB, timescale, coupling)
@@ -246,17 +322,26 @@ def main():
     uarray, varray = new_neuron.randomUV(t1)
 
     # Calculates u and v values for entire timeseries
-    uarray, varray= new_neuron.calculateUVmatrix(uarray, varray, t1, 89)
+    uarray, varray = new_neuron.calculateUVmatrix(uarray, varray, t1, 90)
 
-    fig, axs = plt.subplots(2)
+    fig, axs = plt.subplots(2, figsize = (15,15))
     fig.suptitle("Network and Graph")
 
     # Graphs both variables
     new_neuron.graphUVmatrix(uarray, varray, t1, num, axs)
 
-    # Draws the network
-    G = nx.from_numpy_matrix(matrixA)
-    nx.draw(G, with_labels = True, font_weight = 'bold')
+    new_neuron.graphR(tmax, uarray, varray, t1, axs)
+    # Creates heatmap, you can uncomment the line 333 and uncomment
+    # line 336 to display heatmap (don't run both at once due to streamlit rendering issues)
+    #sns.heatmap(matrixA, linewidth = 0.5, ax = axs[1])
+
+    #new_neuron.pCorrelation(uarray, 32, 54)
+    #new_neuron.corrMatrix(uarray, axs)
+
+    # Draws the networks, not very useful
+    #G = nx.from_numpy_matrix(matrixA)
+    #nx.draw(G, with_labels = True, font_weight = 'bold')
+
     st.pyplot(fig)
 
 
