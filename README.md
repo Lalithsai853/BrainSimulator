@@ -29,6 +29,7 @@ This is a python script and a few other files that can simulate neuron activity 
 
 # Guide to Run
 - Start by downloading all of the files above
+- Navigate to the correct directory through the terminal
 - To run the file, please use the following command: streamlit run neuron.py in the terminal
 - Once the interface pops up, the sliders can be used to change the various parameters
 
