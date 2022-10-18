@@ -1,5 +1,5 @@
 # BrainSimulator
-This is a python script and a few other files that can simulate brain activity based on various brain network topologies to observe the impact of network structure on seizure activity. The base of the simulator is built based upon the Fitz-Hugh Nagumo oscillator, which was chosen for its ability to model excitement and inhibition in a brain network. Several features have been updated which can be used to check for synchronization among neurons. If you have any questions, you can open up an issue and I'll make sure to look at it.
+This is a python script and a few other files that can simulate brain activity based on various brain network topologies to observe the impact of network structure on seizure activity. The base of the simulator is built based upon the Fitz-Hugh Nagumo oscillator, which was chosen for its ability to model excitement and inhibition in a brain network. Several features have been updated which can be used to check for synchronization among neurons, and this synchronization is used to tell whether or not a seizure occurred. If you have any questions, you can open up an issue and I'll make sure to look at it.
 
 # External Packages
 - Matplotlib - For graphing the neuron activity
