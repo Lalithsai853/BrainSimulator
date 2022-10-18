@@ -1,5 +1,5 @@
 # BrainSimulator
-This is a python script and a few other files that can simulate brain activity based on various brain network topologies to observe the impact of network structure on seizure activity. Several features have been updated which can be used to check for synchronization among neurons. If you have any questions, you can open up an issue and I'll make sure to look at it.
+This is a python script and a few other files that can simulate brain activity based on various brain network topologies to observe the impact of network structure on seizure activity. The base of the simulator is built based upon the Fitz-Hugh Nagumo oscillator, which was chosen for its ability to model excitement and inhibition in a brain network. Several features have been updated which can be used to check for synchronization among neurons. If you have any questions, you can open up an issue and I'll make sure to look at it.
 
 # External Packages
 - Matplotlib - For graphing the neuron activity
@@ -26,6 +26,7 @@ This is a python script and a few other files that can simulate brain activity b
 - graphR(self, u, v, t, rng, pltNum, ax, threshold, period, lowerBoundary, upperBoundary, maxt): - Graphs the Kuramoto parameter to track synchronization across all brain regions
 - setUpStreamLit(self, numplots, figSize, title): - Sets up the streamlit deck to show sliders + visualizations
 - createHeatMap(self, adjMatrix, width, axs, colorMap, pltNum): - Creates the heatmap of the brain network showing strength of connections and general structure
+
 # Files Included 
 - data.csv - Contains the simple chain adjacency matrix
 - data2.csv - Contains the adjacency matrix in which one neuron is connected to all others
@@ -33,6 +34,16 @@ This is a python script and a few other files that can simulate brain activity b
 - regular.txt - Real-life data of a rat without seizures
 - seizure.txt - Real-life data of a rat with seizures
 - samplegraph.py - Graphs the real-life data to find similarities
+
+# Slider Information
+The following is information about each of the sliders
+- A value: represents the strength of excitement of the variables
+- Timescale Value: represents the scale between the sudden excitement of the activator variable and inhibition of the inhibitor variable 
+- Coupling: represents the strength of interaction between the activator and inhibitor variables
+- Maximum Time: The maximum amount of time units for the simulation
+- Number of Steps: The number of steps within the maximum amount of time units 
+- Brain Region Number: The brain region to graph (For the graph of the Kuramoto parameter, it is the same regardless of brain region selection
+- Rewiring Probability: The probability to rewire the connections to a random node in the Watts-Strogatz algorithm
 
 # Guide to Run
 - Start by downloading all of the files above
@@ -44,3 +55,4 @@ This is a python script and a few other files that can simulate brain activity b
 - Create a downloadable package so it is easier for future researchers to use the software
 - Expand the documentation even further to prevent issues for future developers
 - Use the simulator to attempt to reverse engineer and be able to predict seizures
+
