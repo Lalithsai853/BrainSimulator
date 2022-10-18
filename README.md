@@ -9,7 +9,7 @@ This is a python script and a few other files that can simulate brain activity b
 - Pandas - Needed to read files for adjacency matrix
 - NetworkX - Used to visualize and generate some of the networks
 
-# Methods (Detailed documentation can be found in the comments in the source file)
+# Methods (Detailed documentation about usage, parameters, and return objects can be found in the comments in the source file)
 - csvMatrixA(inputFile, start) - Creates an adjacency matrix based on a CSV file (Ex: data.csv)
 - generatematrixA(n) - Generates an adjacency Matrix with randomly chosen connections
 - generatematrixB(psi) - Generates the matrix B that is used for network 
