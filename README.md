@@ -16,7 +16,7 @@ This is a python script and a few other files that can simulate brain activity b
 - calculateUVmatrix(self, u1, v1, t, range1) - Completes the numerical calculations for the u and v arrays for each brain region
 - graphUVmatrix(self, u1, v1, t, n, ax) - Graphs the u and v values for a given brain region
 - KroneckerMatrix(m1, m2, m3, m4): - Creates an 81 by 81 Kronecker Adjacency Matrix based on four 3 by 3 matrices
-- smallworld(rng, numConnections, p): - 
+- smallworld(rng, numConnections, p): - Creates a small world network based on the Wattz-Strogatz algorithm 
 - randSurrogate(rng, lowerLim, upperLim): - Creates an adjacency matrix with random connection strengths
 - fractalConn(rng, str): - Uses a base string and then shifts this right "rng" times to form a fractal network
 - realFractalConn(rng, str, lowerLim, upperLim): -Uses a base string and then shifts this right "rng" times to form a fractal network, but the strength of the connection is randomly assigned
