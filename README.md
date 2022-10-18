@@ -1,5 +1,5 @@
 # BrainSimulator
-This is a python script and a few other files that can simulate neuron activity based on various adjacency matrices to see if we can simulate seizures. Several features have been updated which can be used to check for synchronization among neurons. If you have any questions, you can open up an issue and I'll make sure to look at it.
+This is a python script and a few other files that can simulate brain activity based on various brain network topologies to observe the impact of network structure on seizure activity. Several features have been updated which can be used to check for synchronization among neurons. If you have any questions, you can open up an issue and I'll make sure to look at it.
 
 # External Packages
 - Matplotlib - For graphing the neuron activity
@@ -9,16 +9,23 @@ This is a python script and a few other files that can simulate neuron activity 
 - Pandas - Needed to read files for adjacency matrix
 - NetworkX - Used to visualize and generate some of the networks
 
-# Methods
-- csvMatrix(inputFile, start) - Creates an adjacency matrix based on a CSV file (Ex: data.csv)
-- generatematrixA(n) - Generates a random adjacency Matrix
-- generatematrixB(psi) - Generates the matrix B
-- calculateUVmatrix(self, u1, v1, t, range1) - Completes the numerical calculations for the u and v arrays for each neuron
-- graphUVmatrix(self, u1, v1, t, n, ax) - Graphs the u and v values for a given neuron
-- KroneckerMatrix(a, b, c) - Creates the Kronecker Adjacency Matrix
-- JellyfishMatrix(startingval) - Creates an adjacency matrix based on the structure of a jellyfish
-- randomUV(self, t) - Sets random starting values for u and v for all neurons
-
+# Methods (Detailed documentation can be found in the comments in the source file)
+- csvMatrixA(inputFile, start) - Creates an adjacency matrix based on a CSV file (Ex: data.csv)
+- generatematrixA(n) - Generates an adjacency Matrix with randomly chosen connections
+- generatematrixB(psi) - Generates the matrix B that is used for network 
+- calculateUVmatrix(self, u1, v1, t, range1) - Completes the numerical calculations for the u and v arrays for each brain region
+- graphUVmatrix(self, u1, v1, t, n, ax) - Graphs the u and v values for a given brain region
+- KroneckerMatrix(m1, m2, m3, m4): - Creates an 81 by 81 Kronecker Adjacency Matrix based on four 3 by 3 matrices
+- smallworld(rng, numConnections, p): - 
+- randSurrogate(rng, lowerLim, upperLim): - Creates an adjacency matrix with random connection strengths
+- fractalConn(rng, str): - Uses a base string and then shifts this right "rng" times to form a fractal network
+- realFractalConn(rng, str, lowerLim, upperLim): -Uses a base string and then shifts this right "rng" times to form a fractal network, but the strength of the connection is randomly assigned
+- generateStar(rng): - Generates a rng by rng star network
+- randomTree(rng): - Generates a rng by rng uniform tree network
+- randomUV(self, t, rng, lowerLim, upperLim): - Sets random starting values for u and v for all neurons
+- graphR(self, u, v, t, rng, pltNum, ax, threshold, period, lowerBoundary, upperBoundary, maxt): - Graphs the Kuramoto parameter to track synchronization across all brain regions
+- setUpStreamLit(self, numplots, figSize, title): - Sets up the streamlit deck to show sliders + visualizations
+- createHeatMap(self, adjMatrix, width, axs, colorMap, pltNum): - Creates the heatmap of the brain network showing strength of connections and general structure
 # Files Included 
 - data.csv - Contains the simple chain adjacency matrix
 - data2.csv - Contains the adjacency matrix in which one neuron is connected to all others
@@ -34,10 +41,6 @@ This is a python script and a few other files that can simulate neuron activity 
 - Once the interface pops up, the sliders can be used to change the various parameters
 
 # Future Developments
-- Include parameters to measure synchronization easily (detection for seizures) (DONE)
-- Include a method to visualize the adjacency matrix (spyplot) (DONE)
-- Test further network topologies to see if we can better results that are similar to real data (DONE)
-- Use the simulator to attempt to reverse engineer and be able to predict seizures
-- Increase the display to make it easier to analyze graphs and networks (DONE)
 - Create a downloadable package so it is easier for future researchers to use the software
-
+- Expand the documentation even further to prevent issues for future developers
+- Use the simulator to attempt to reverse engineer and be able to predict seizures
