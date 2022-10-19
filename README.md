@@ -45,6 +45,8 @@ This is a python script and a few other files that can simulate brain activity b
 - Star Network
 - Fractal Connectivity Network
 - Fractal Connectivity Network with random strength of connections
+- Chain Network
+- One-to-All Network
 
 # Files Included 
 - data.csv - Contains the simple chain adjacency matrix
@@ -61,7 +63,7 @@ The following is information about each of the sliders
 - Coupling: represents the strength of interaction between the activator and inhibitor variables
 - Maximum Time: The maximum amount of time units for the simulation
 - Number of Steps: The number of steps within the maximum amount of time units 
-- Brain Region Number: The brain region to graph (For the graph of the Kuramoto parameter, it is the same regardless of brain region selection
+- Brain Region Number: The brain region to graph (For the graph of the Kuramoto parameter, it is the same regardless of brain region selection)
 - Rewiring Probability: The probability to rewire the connections to a random node in the Watts-Strogatz algorithm
 
 # Guide to Run
