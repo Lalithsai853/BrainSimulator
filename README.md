@@ -32,7 +32,7 @@ This is a python script and a few other files that can simulate brain activity b
 - randomTree(rng): - Generates a rng by rng uniform tree network
 - randomUV(self, t, rng, lowerLim, upperLim): - Sets random starting values for u and v for all neurons
 - graphUVMatrix(self, u1, v1, t, rng, ax, upperBoundary, lowerBoundary, pltNum, fig=None, save_path=None): - Graphs the u and v values for a given brain region
-- graphR(self, u, v, t, rng, pltNum, ax, threshold, period, lowerBoundary, upperBoundary, maxt, fig=None, save_path=None): - Graphs the Kuramoto parameter to track synchronization across all brain regions
+- graphR(self, u, v, t, rng, pltNum, ax, threshold, period, lowerBoundary, upperBoundary, maxt, fig=None, save_path=None): - Graphs the Kuramoto parameter to track synchronization across all brain regions and checks for how many time units brain activity is above a certain threshold. Above this threshold can be considered high synchronization or signs of seizure activity. 
 - createHeatMap(self, adjMatrix, width, ax, colorMap, pltNum, fig=None,save_path=None): - Creates the heatmap of the brain network showing strength of connections and general structure
 - setUpStreamLit(self, numplots, figSize, title): - Sets up the streamlit deck to show sliders + visualizations
 
