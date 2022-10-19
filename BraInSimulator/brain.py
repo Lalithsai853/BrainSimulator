@@ -15,6 +15,7 @@ import cmath
 import streamlit as st
 import networkx as nx
 import seaborn as sns
+from kuramoto import Kuramoto
 
 class Brain:
     # Creates the Brain object
@@ -119,22 +120,6 @@ class Brain:
                 vterm = 0
 
         return u1, v1
-
-    '''
-    parameters:
-    u1: Corresponds to u variable, activator variable
-    v1: Corresponds to v variable, inhibitory variable
-    t: Corresponds to timeseries array
-    Example:
-    num: Brain Region to graph (If num = 2, brain region 2's activity will be graphed)
-    returns:
-    None
-    '''
-    def graphUVMatrix(self, u1, v1, t, rng, ax, upperBoundary, lowerBoundary, pltNum):
-        ax[pltNum].plot(t, u1[rng], 'b.-', t, v1[rng], 'r-')
-        ax[pltNum].legend(['Activator Variable', 'Recovery Variable'])
-        ax[pltNum].axis([0,self.tmax, lowerBoundary, upperBoundary])
-        ax[pltNum].grid(True)
 
     '''
     parameters:
@@ -297,6 +282,34 @@ class Brain:
             u1[i][0] = random.uniform(lowerLim, upperLim)
             v1[i][0] = random.uniform(lowerLim, upperLim)
         return u1, v1
+    '''
+    parameters:
+    u1: Corresponds to u variable, activator variable
+    v1: Corresponds to v variable, inhibitory variable
+    t: Corresponds to timeseries array
+    rng: number of brain regions
+    ax: axis to plot graph on
+    upperBoundary: upper boundary of graph
+    lowerBoundary: lower boundary of graph
+    pltNum: plot number to graph upon
+    save_path: path to save figure on
+    num: Brain Region to graph (If num = 2, brain region 2's activity will be graphed)
+    Example:
+    new_brain.graphUVMatrix(uarray, varray, t1, 2, fig, axs, -3, 3, 0, fig, "/home/user/Desktop/fig.png")
+    returns:
+    None
+    '''
+    def graphUVMatrix(self, u1, v1, t, rng, ax, upperBoundary, lowerBoundary, pltNum, fig=None, save_path=None):
+        ax[pltNum].plot(t, u1[rng], 'b.-', t, v1[rng], 'r-')
+        ax[pltNum].legend(['Activator Variable', 'Recovery Variable'])
+        ax[pltNum].axis([0,self.tmax, lowerBoundary, upperBoundary])
+        ax[pltNum].grid(True)
+        ax[pltNum].set_title('Graph of Brain Region Activity')
+        ax[pltNum].set_xlabel("Time (seconds)")
+        ax[pltNum].set_ylabel("Voltage (volts)")
+        if (save_path is not None):
+            extent = ax[pltNum].get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+            fig.savefig(save_path, bbox_inches=extent.expanded(1.1, 1.2))
 
     '''
     parameters:
@@ -308,13 +321,14 @@ class Brain:
     ax: axis to graph the kuramoto parameters
     lowerBoundary: lower boundary for graph vertical axis
     upperBoundary: upper boundary for graph vertical axis
-    maxt: Maximum value of the x axis for the Kuramoto parameter Graph
+    maxt: maximum value of the x axis for the Kuramoto parameter Graph
+    save_path: path to save figure on
     Example:
-    new_brain.graphR(uarray, varray, t1, 90, axs, 0.8, 2.56, 0, 1)
+    new_brain.graphR(uarray, varray, t1, 90, 0, axs, 0.8, 2.56, 0, 1, fig, "/home/user/Desktop/fig.png")
     returns:
     None
     '''
-    def graphR(self, u, v, t, rng, pltNum, ax, threshold, period, lowerBoundary, upperBoundary, maxt):
+    def graphR(self, u, v, t, rng, pltNum, ax, threshold, period, lowerBoundary, upperBoundary, maxt, fig=None, save_path=None):
         r1 = np.zeros(len(t))
         rterm = 0
         T = period
@@ -335,6 +349,34 @@ class Brain:
         ax[pltNum].plot(t, r1, 'b.-')
         ax[pltNum].axis([0, maxt, lowerBoundary, upperBoundary])
         ax[pltNum].grid(True)
+        ax[pltNum].set_title('Graph of Kuramoto Parameter (Synchronization)')
+        ax[pltNum].set_xlabel("Time (seconds)")
+        ax[pltNum].set_ylabel("Level of synchronization")
+        if (save_path is not None):
+            extent = ax[pltNum].get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+            fig.savefig(save_path, bbox_inches=extent.expanded(1.1, 1.2))
+
+
+    '''
+    parameters:
+    adjMatrix: Adjacency matrix representation of the network
+    width: width of the boxes for the heatmap
+    axs: The axis to graph the heatmap upon
+    colorMap: Color scheme for heat map
+    pltNum: Plot Number to graph upon
+    save_path: Path to save figure on
+    Example:
+    new_brain.createHeatMap(matrixA, 0.5, axs, "YlGnBu", 1, fig, "/home/user/Desktop/fig.png")
+    returns:
+    None
+    '''
+    def createHeatMap(self, adjMatrix, width, ax, colorMap, pltNum, fig=None,save_path=None):
+        sns.heatmap(adjMatrix, linewidth = width, ax = ax[pltNum], cmap = colorMap)
+        svm = sns.heatmap(adjMatrix, linewidth = width, ax = ax[pltNum], cmap = colorMap)
+        fig = svm.get_figure()
+        if save_path is not None:
+            extent = ax[pltNum].get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+            fig.savefig(save_path, bbox_inches=extent.expanded(1.1, 1.2))
 
     '''
     parameters:
@@ -351,27 +393,10 @@ class Brain:
         fig.suptitle(title)
         return fig, axs
 
-    '''
-    parameters:
-    adjMatrix: Adjacency matrix representation of the network
-    width: width of the boxes for the heatmap
-    axs: The axis to graph the heatmap upon
-    colorMap: Color scheme for heat map
-    pltNum: Plot Number to graph upon
-    Example:
-    new_brain.createHeatMap(matrixA, 0.5, axs, "YlGnBu", 1)
-    returns:
-    None
-    '''
-    def createHeatMap(self, adjMatrix, width, axs, colorMap, pltNum):
-        sns.heatmap(adjMatrix, linewidth = width, ax = axs[pltNum], cmap = colorMap)
-
 def main():
     # Various filenames change the structure of the adjacency matrix
     # data.csv - Chain of brain regions connected together
     # data2.csv - One brain region connected to all other brain regions
-    # NOTE" FOR TESTING: Please plot either the heatmap or the r value, unfortunately streamlit is having
-    # trou"ble displaying 3 plots at once.
     fileName = 'data.csv'
     matrixB = Brain.generatematrixB((math.pi/2)- 1)
     # Placeholder values if you would like to convert the multiFHN brain region model to a FHN system with a single brain region
@@ -391,8 +416,8 @@ def main():
     rng = 90
     t1 = np.linspace(0, tmax, steps)
     # Setting up adjacency matrix
-    #matrixA = Brain.realFractalConn(rng, "101000101000000000101000101000000000000000000000000000101000101000000000101000101", 0.0001, 0.001)
     matrixA = Brain.smallworld(rng, 2, p)
+
     # Creates the Brain object
     new_brain = Brain(tmax, a, u01, v01, I_ampl1, b1, tau1, matrixA, matrixB, timescale, coupling)
 
@@ -403,17 +428,16 @@ def main():
     uarray, varray = new_brain.calculateUVmatrix(uarray, varray, t1, rng)
 
     # Sets up streamlit deck
-    fig, axs = new_brain.setUpStreamLit(2, 15, "Network and Graph")
+    fig, axs = new_brain.setUpStreamLit(3, 30, "Network and Graph")
 
     # Graphs both variables
-    #new_brain.graphUVMatrix(uarray, varray, t1, 2, axs, -3, 3, 0)
+    new_brain.graphUVMatrix(uarray, varray, t1, 2, axs, -3, 3, 0, fig, "/home/lalith/Desktop/demo/uvfig.png")
 
     # Graphs global kuramoto parameter variables
-    new_brain.graphR(uarray, varray, t1, rng, 0, axs, 0.8, 2.70, 0, 1, tmax)
+    new_brain.graphR(uarray, varray, t1, rng, 1, axs, 0.8, 2.60, 0, 1, tmax, fig, "/home/lalith/Desktop/demo/rfig.png")
 
-    # Creates heatmap, you can comment line 299 and uncomment
-    # line 302 to display heatmap (don't run both at once due to streamlit rendering issues)
-    new_brain.createHeatMap(matrixA, 0.5, axs, "YlGnBu", 1)
+    # Creates heatmap to visualize network structure
+    new_brain.createHeatMap(matrixA, 0.5, axs, "YlGnBu", 2, fig, "/home/lalith/Desktop/demo/figheatmap.png")
 
     st.pyplot(fig)
 
