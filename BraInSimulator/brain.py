@@ -1,25 +1,39 @@
+import cmath
+import collections
+import math
 import os
 import random
 import sys
+
+import matplotlib.patches as mpatches
+import networkx as nx
 import numpy as np
+import pandas
 import scipy as scpy
 import scipy.integrate as spin
-from matplotlib import pyplot as plt
-import collections
-from scipy import stats
-import random
-import matplotlib.patches as mpatches
-import pandas
-import math
-import cmath
-import streamlit as st
-import networkx as nx
 import seaborn as sns
+import streamlit as st
 from kuramoto import Kuramoto
+from matplotlib import pyplot as plt
+from scipy import stats
+
 
 class Brain:
     # Creates the Brain object
-    def __init__(self, tmax, a, u0 = None, v0 = None, I_ampl= None, b= None, tau= None, matrixA= None, matrixB= None, timescale= None, coupling= None):
+    def __init__(
+        self,
+        tmax,
+        a,
+        u0=None,
+        v0=None,
+        I_ampl=None,
+        b=None,
+        tau=None,
+        matrixA=None,
+        matrixB=None,
+        timescale=None,
+        coupling=None,
+    ):
         self.tmax = tmax
         self.a = a
         self.I_ampl = I_ampl
@@ -31,7 +45,8 @@ class Brain:
         self.matrixB = matrixB
         self.timescale = timescale
         self.coupling = coupling
-    '''
+
+    """
     parameters:
     inputFile: csv file containing initial connections in form (startregion, endregion)
     start: starting value for each connection
@@ -40,29 +55,31 @@ class Brain:
     matrixA = Brain.csvMatrixA('data.csv'm, 1, 90)
     returns:
     arrA: Matrix with connections
-    '''
+    """
+
     @staticmethod
     def csvMatrixA(inputFile, start, rng):
-        arrA = np.zeros((rng,rng))
+        arrA = np.zeros((rng, rng))
 
         df = pandas.read_csv(inputFile)
         row_count, column_count = df.shape
         for i in range(1, row_count):
-            arrA[df['FromNeuron'][i]][df['ToNeuron'][i]] = start
+            arrA[df["FromNeuron"][i]][df["ToNeuron"][i]] = start
 
         return arrA
 
-    '''
+    """
     parameters:
     rng: number of brain regions
     Example:
     matrixA = Brain.generatematrixA(90)
     returns:
     arrA: Matrix with random connections
-    '''
+    """
+
     @staticmethod
     def generatematrixA(rng):
-        arrA = np.zeros((rng,rng))
+        arrA = np.zeros((rng, rng))
         for i in range(0, rng):
             num1 = randint(1, rng)
             num2 = randint(1, rng)
@@ -70,23 +87,25 @@ class Brain:
             arrA[num2][num1] = 1
         return arrA
 
-    '''
+    """
     parameters:
     psi: parameter to control interactions between u and v variables
     Example:
     matrixB = Brain.generatematrixB(psi)
     returns:
     arrB: 2 by 2 matrix to control coupling between u and v variables
-    '''
+    """
+
     @staticmethod
     def generatematrixB(psi):
-        arrB = np.ones((2,2))
+        arrB = np.ones((2, 2))
         arrB[0][0] = math.cos(psi)
         arrB[0][1] = math.sin(psi)
-        arrB[1][0] = (-1 * math.sin(psi))
+        arrB[1][0] = -1 * math.sin(psi)
         arrB[1][1] = math.cos(psi)
         return arrB
-    '''
+
+    """
     parameters:
     u1: Corresponds to u timeseries calculations for every single brain region
     v1: Corresponds to v timeseries calculations for every single brain region
@@ -96,32 +115,39 @@ class Brain:
     uarray, varray = new_brain.calculateUVmatrix(uarray, varray, t1, rng)
     returns:
     arrA: U and V arrays containing calculations of timeseries for every single brain region
-    '''
+    """
+
     def calculateUVmatrix(self, u1, v1, t, rng):
         uterm = 0
         vterm = 0
-        for i in range(0,len(t)-1):
+        for i in range(0, len(t) - 1):
             for n in range(0, rng):
-                dudt = u1[n][i] - np.power(u1[n][i], 3)/3 - v1[n][i]
+                dudt = u1[n][i] - np.power(u1[n][i], 3) / 3 - v1[n][i]
                 dvdt = u1[n][i] + self.a
                 for j in range(0, rng):
-                    uterm = uterm + self.matrixA[n][j] * ((self.matrixB[0][0] * (u1[j][i] - u1[n][i])) + (self.matrixB[0][1] * (v1[j][i] - v1[n][i])))
-                    vterm = vterm + self.matrixA[n][j] * ((self.matrixB[1][0] * (u1[j][i] - u1[n][i])) + (self.matrixB[1][1] * (v1[j][i] - v1[n][i])))
+                    uterm = uterm + self.matrixA[n][j] * (
+                        (self.matrixB[0][0] * (u1[j][i] - u1[n][i]))
+                        + (self.matrixB[0][1] * (v1[j][i] - v1[n][i]))
+                    )
+                    vterm = vterm + self.matrixA[n][j] * (
+                        (self.matrixB[1][0] * (u1[j][i] - u1[n][i]))
+                        + (self.matrixB[1][1] * (v1[j][i] - v1[n][i]))
+                    )
                 uterm = uterm * self.coupling
                 vterm = vterm * self.coupling
 
-                dudt = (dudt + uterm)/(self.timescale)
-                dvdt = (dvdt + vterm)
+                dudt = (dudt + uterm) / (self.timescale)
+                dvdt = dvdt + vterm
 
-                u1[n][i+1] = u1[n][i] + dudt * (t[i+1] - t[i])
-                v1[n][i+1] = v1[n][i] + dvdt * (t[i+1] - t[i])
+                u1[n][i + 1] = u1[n][i] + dudt * (t[i + 1] - t[i])
+                v1[n][i + 1] = v1[n][i] + dvdt * (t[i + 1] - t[i])
 
                 uterm = 0
                 vterm = 0
 
         return u1, v1
 
-    '''
+    """
     parameters:
     m1, m2, m3, m4: Represent a 3x3 matrix with any intiailization that user would like
     Example of m1 array:
@@ -130,7 +156,8 @@ class Brain:
     matrixA = Brain.KroneckerMatrix(m1, m2, m3, m4)
     returns:
     81 by 81 kronecker matrix formed from the four 3 by 3 matrices given as input
-    '''
+    """
+
     @staticmethod
     def KroneckerMatrix(m1, m2, m3, m4):
         m5 = np.kron(m1, m2)
@@ -138,7 +165,7 @@ class Brain:
         resmatrix = np.kron(m5, m6)
         return resmatrix
 
-    '''
+    """
     parameters:
     rng: number of brain regions
     numConnections: number of initial connections to nearest neighbors
@@ -147,14 +174,15 @@ class Brain:
     matrixA = Brain.smallworld(90, 2, 0.2)
     returns:
     rng by rng matrix based on the watts-strogatz algorithm
-    '''
+    """
+
     @staticmethod
     def smallworld(rng, numConnections, p):
         graph = nx.watts_strogatz_graph(rng, numConnections, p)
         A1 = nx.to_numpy_array(graph)
         return A1
 
-    '''
+    """
     parameters:
     rng: number of brain regions
     lowerLim: lower limit for random generation
@@ -163,14 +191,15 @@ class Brain:
     matrixA = Brain.randSurrogate(90, 0, 1)
     returns:
     rng by rng matrix with random strength of connections
-    '''
+    """
+
     @staticmethod
     def randSurrogate(rng, lowerLim, upperLim):
         resmatrix = np.zeros((rng, rng))
         sum1 = 0
         for i in range(0, rng):
             for j in range(0, rng):
-                if (i == j):
+                if i == j:
                     resmatrix[i][j] = 0
                 else:
                     temp = random.uniform(lowerLim, upperLim)
@@ -178,10 +207,10 @@ class Brain:
                     sum1 += temp
 
         print("AVERAGE WEIGHT")
-        print(sum1/(rng * rng))
+        print(sum1 / (rng * rng))
         return resmatrix
 
-    '''
+    """
     parameters:
     rng: number of brain regions
     str: base string to form fractals from
@@ -189,7 +218,8 @@ class Brain:
     matrixA = Brain.fractalConn(90, "101000101000000000101000101000000000000000000000000000101000101000000000101000101")
     returns:
     rng by rng matrix based on fractal connectivity from base string by shifting base string for "rng" times, where rng is size of the network
-    '''
+    """
+
     @staticmethod
     def fractalConn(rng, str):
         resmatrix = np.zeros((rng, rng))
@@ -197,14 +227,14 @@ class Brain:
         shifted_list = np.zeros(rng)
         for i in range(0, rng):
             resmatrix[0][i] = int(str[i])
-        for i in range(0, rng-1):
+        for i in range(0, rng - 1):
             resarray = collections.deque(resmatrix[i])
             resarray.rotate(1)
             shifted_list = list(resarray)
-            resmatrix[i+1] = shifted_list
+            resmatrix[i + 1] = shifted_list
         return resmatrix
 
-    '''
+    """
     parameters:
     rng: number of brain regions
     str: base string to form fractals from
@@ -214,7 +244,8 @@ class Brain:
     matrixA = Brain.realFractalConn(90, "101000101000000000101000101000000000000000000000000000101000101000000000101000101", 0, 1)
     returns:
     similar matrix that the fractalConn method returns, but with random strength of connections rather than 0s and 1s
-    '''
+    """
+
     @staticmethod
     def realFractalConn(rng, str, lowerLim, upperLim):
         resmatrix = np.zeros((rng, rng))
@@ -222,49 +253,50 @@ class Brain:
         shifted_list = np.zeros(rng)
         for i in range(0, rng):
             resmatrix[0][i] = int(str[i])
-        for i in range(0, rng-1):
+        for i in range(0, rng - 1):
             resarray = collections.deque(resmatrix[i])
             resarray.rotate(1)
             shifted_list = list(resarray)
-            resmatrix[i+1] = shifted_list
+            resmatrix[i + 1] = shifted_list
 
         for i in range(0, rng):
             for j in range(0, rng):
-                if (resmatrix[i][j] == 1):
+                if resmatrix[i][j] == 1:
                     # add randomized component
                     resmatrix[i][j] = random.uniform(lowerLim, upperLim)
         return resmatrix
 
-    '''
+    """
     parameters:
     rng: number of brain regions
     Example:
     matrixA = Brain.generateStar(90)
     returns:
     rng by rng matrix based on a star formation
-    '''
+    """
+
     @staticmethod
     def generateStar(rng):
         graph = nx.star_graph(rng)
         A1 = nx.to_numpy_array(graph)
         return A1
 
-    '''
+    """
     parameters:
     rng: number of brain regions
     Example:
     matrixA = Brain.randomTree(90)
     returns:
     rng by rng matrix created based on a uniformly random tree
-    '''
+    """
+
     @staticmethod
     def randomTree(rng):
         graph = nx.random_tree(rng)
         A1 = nx.to_numpy_array(graph)
         return A1
 
-
-    '''
+    """
     parameters:
     t: timeseries array
     rng: number of brain regions
@@ -274,7 +306,8 @@ class Brain:
     uarray, varray = new_brain.randomUV(t, 90, 0, 1)
     returns:
     u and v matrices with random starting u and v values for every brain region
-    '''
+    """
+
     def randomUV(self, t, rng, lowerLim, upperLim):
         u1 = np.ones((rng, len(t)))
         v1 = np.ones((rng, len(t)))
@@ -282,7 +315,8 @@ class Brain:
             u1[i][0] = random.uniform(lowerLim, upperLim)
             v1[i][0] = random.uniform(lowerLim, upperLim)
         return u1, v1
-    '''
+
+    """
     parameters:
     u1: Corresponds to u variable, activator variable
     v1: Corresponds to v variable, inhibitory variable
@@ -298,20 +332,37 @@ class Brain:
     new_brain.graphUVMatrix(uarray, varray, t1, 2, fig, axs, -3, 3, 0, fig, "/home/user/Desktop/fig.png")
     returns:
     None
-    '''
-    def graphUVMatrix(self, u1, v1, t, rng, ax, upperBoundary, lowerBoundary, pltNum, fig=None, save_path=None):
-        ax[pltNum].plot(t, u1[rng], 'b.-', t, v1[rng], 'r-')
-        ax[pltNum].legend(['Activator Variable', 'Recovery Variable'])
-        ax[pltNum].axis([0,self.tmax, lowerBoundary, upperBoundary])
+    """
+
+    def graphUVMatrix(
+        self,
+        u1,
+        v1,
+        t,
+        rng,
+        ax,
+        upperBoundary,
+        lowerBoundary,
+        pltNum,
+        fig=None,
+        save_path=None,
+    ):
+        ax[pltNum].plot(t, u1[rng], "b.-", t, v1[rng], "r-")
+        ax[pltNum].legend(["Activator Variable", "Recovery Variable"])
+        ax[pltNum].axis([0, self.tmax, lowerBoundary, upperBoundary])
         ax[pltNum].grid(True)
-        ax[pltNum].set_title('Graph of Brain Region Activity')
+        ax[pltNum].set_title("Graph of Brain Region Activity")
         ax[pltNum].set_xlabel("Time (seconds)")
         ax[pltNum].set_ylabel("Voltage (volts)")
-        if (save_path is not None):
-            extent = ax[pltNum].get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+        if save_path is not None:
+            extent = (
+                ax[pltNum]
+                .get_window_extent()
+                .transformed(fig.dpi_scale_trans.inverted())
+            )
             fig.savefig(save_path, bbox_inches=extent.expanded(1.1, 1.2))
 
-    '''
+    """
     parameters:
     u: u matrix with calculated u values for all brain regions
     v: u matrix with calculated u values for all brain regions
@@ -327,8 +378,24 @@ class Brain:
     new_brain.graphR(uarray, varray, t1, 90, 0, axs, 0.8, 2.56, 0, 1, fig, "/home/user/Desktop/fig.png")
     returns:
     None
-    '''
-    def graphR(self, u, v, t, rng, pltNum, ax, threshold, period, lowerBoundary, upperBoundary, maxt, fig=None, save_path=None):
+    """
+
+    def graphR(
+        self,
+        u,
+        v,
+        t,
+        rng,
+        pltNum,
+        ax,
+        threshold,
+        period,
+        lowerBoundary,
+        upperBoundary,
+        maxt,
+        fig=None,
+        save_path=None,
+    ):
         r1 = np.zeros(len(t))
         rterm = 0
         T = period
@@ -337,27 +404,30 @@ class Brain:
         numTerms = 0
         for i in range(0, len(t)):
             for j in range(0, rng):
-                angleVec = ((2 * math.pi * (math.atan(v[j][i]/u[j][i])))/T)
-                newT = (np.e ** (1j * angleVec))
+                angleVec = (2 * math.pi * (math.atan(v[j][i] / u[j][i]))) / T
+                newT = np.e ** (1j * angleVec)
                 rterm += newT
-            r1[i] = (np.abs(rterm))/rng
-            if (r1[i] >= threshold):
+            r1[i] = (np.abs(rterm)) / rng
+            if r1[i] >= threshold:
                 numTerms = numTerms + 1
             rterm = 0
 
-        print("Percent over threshold: ", ((numTerms/len(t)) * 100))
-        ax[pltNum].plot(t, r1, 'b.-')
+        print("Percent over threshold: ", ((numTerms / len(t)) * 100))
+        ax[pltNum].plot(t, r1, "b.-")
         ax[pltNum].axis([0, maxt, lowerBoundary, upperBoundary])
         ax[pltNum].grid(True)
-        ax[pltNum].set_title('Graph of Kuramoto Parameter (Synchronization)')
+        ax[pltNum].set_title("Graph of Kuramoto Parameter (Synchronization)")
         ax[pltNum].set_xlabel("Time (seconds)")
         ax[pltNum].set_ylabel("Level of synchronization")
-        if (save_path is not None):
-            extent = ax[pltNum].get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+        if save_path is not None:
+            extent = (
+                ax[pltNum]
+                .get_window_extent()
+                .transformed(fig.dpi_scale_trans.inverted())
+            )
             fig.savefig(save_path, bbox_inches=extent.expanded(1.1, 1.2))
 
-
-    '''
+    """
     parameters:
     adjMatrix: Adjacency matrix representation of the network
     width: width of the boxes for the heatmap
@@ -369,16 +439,23 @@ class Brain:
     new_brain.createHeatMap(matrixA, 0.5, axs, "YlGnBu", 1, fig, "/home/user/Desktop/fig.png")
     returns:
     None
-    '''
-    def createHeatMap(self, adjMatrix, width, ax, colorMap, pltNum, fig=None,save_path=None):
-        sns.heatmap(adjMatrix, linewidth = width, ax = ax[pltNum], cmap = colorMap)
-        svm = sns.heatmap(adjMatrix, linewidth = width, ax = ax[pltNum], cmap = colorMap)
+    """
+
+    def createHeatMap(
+        self, adjMatrix, width, ax, colorMap, pltNum, fig=None, save_path=None
+    ):
+        sns.heatmap(adjMatrix, linewidth=width, ax=ax[pltNum], cmap=colorMap)
+        svm = sns.heatmap(adjMatrix, linewidth=width, ax=ax[pltNum], cmap=colorMap)
         fig = svm.get_figure()
         if save_path is not None:
-            extent = ax[pltNum].get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+            extent = (
+                ax[pltNum]
+                .get_window_extent()
+                .transformed(fig.dpi_scale_trans.inverted())
+            )
             fig.savefig(save_path, bbox_inches=extent.expanded(1.1, 1.2))
 
-    '''
+    """
     parameters:
     numplots: number of graphs on display
     figSize: size of the figure
@@ -387,18 +464,20 @@ class Brain:
     fig, axs = new_brain.setUpStreamLit(2, 15, "Network and Graph")
     returns:
     None
-    '''
+    """
+
     def setUpStreamLit(self, numplots, figSize, title):
-        fig, axs = plt.subplots(numplots, figsize = (figSize,figSize))
+        fig, axs = plt.subplots(numplots, figsize=(figSize, figSize))
         fig.suptitle(title)
         return fig, axs
+
 
 def main():
     # Various filenames change the structure of the adjacency matrix
     # data.csv - Chain of brain regions connected together
     # data2.csv - One brain region connected to all other brain regions
-    fileName = 'data.csv'
-    matrixB = Brain.generatematrixB((math.pi/2)- 1)
+    fileName = "data.csv"
+    matrixB = Brain.generatematrixB((math.pi / 2) - 1)
     # Placeholder values if you would like to convert the multiFHN brain region model to a FHN system with a single brain region
     I_ampl1 = 0
     b1 = 0
@@ -419,9 +498,11 @@ def main():
     matrixA = Brain.smallworld(rng, 2, p)
 
     # Creates the Brain object
-    new_brain = Brain(tmax, a, u01, v01, I_ampl1, b1, tau1, matrixA, matrixB, timescale, coupling)
+    new_brain = Brain(
+        tmax, a, u01, v01, I_ampl1, b1, tau1, matrixA, matrixB, timescale, coupling
+    )
 
-    #Gets random starting values for u and v
+    # Gets random starting values for u and v
     uarray, varray = new_brain.randomUV(t1, rng, 0, 1)
 
     # Calculates u and v values for entire timeseries
@@ -431,15 +512,34 @@ def main():
     fig, axs = new_brain.setUpStreamLit(3, 30, "Network and Graph")
 
     # Graphs both variables
-    new_brain.graphUVMatrix(uarray, varray, t1, 2, axs, -3, 3, 0, fig, "/home/lalith/Desktop/demo/uvfig.png")
+    new_brain.graphUVMatrix(
+        uarray, varray, t1, 2, axs, -3, 3, 0, fig, "/home/lalith/Desktop/demo/uvfig.png"
+    )
 
     # Graphs global kuramoto parameter variables
-    new_brain.graphR(uarray, varray, t1, rng, 1, axs, 0.8, 2.60, 0, 1, tmax, fig, "/home/lalith/Desktop/demo/rfig.png")
+    new_brain.graphR(
+        uarray,
+        varray,
+        t1,
+        rng,
+        1,
+        axs,
+        0.8,
+        2.60,
+        0,
+        1,
+        tmax,
+        fig,
+        "/home/lalith/Desktop/demo/rfig.png",
+    )
 
     # Creates heatmap to visualize network structure
-    new_brain.createHeatMap(matrixA, 0.5, axs, "YlGnBu", 2, fig, "/home/lalith/Desktop/demo/figheatmap.png")
+    new_brain.createHeatMap(
+        matrixA, 0.5, axs, "YlGnBu", 2, fig, "/home/lalith/Desktop/demo/figheatmap.png"
+    )
 
     st.pyplot(fig)
+
 
 if __name__ == "__main__":
     main()
